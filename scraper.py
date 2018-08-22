@@ -13,25 +13,30 @@ import sys
 
 
 def scrape_url(url):
-    """
+    """ Takes a url from command line arg and retrieves the text of the
+    webpage, parsing out any URLs, email addresses, or phone numbers included
+    in the HTML
     """
     r = requests.get(url)
     url_list = []
     email_list = []
     phone_list = []
 
+    # URL regex
     http_match = re.findall(r'https:\/\/[\w\/?=.-]+', r.text)
     if http_match:
         for match in http_match:
             if match not in url_list:
                 url_list.append(match)
 
+    # Email regex
     email_match = re.findall(r'[\w.-]+@[\w.-]+.\w+', r.text)
     if email_match:
         for match in email_match:
             if match not in email_list:
                 email_list.append(match)
 
+    # Phone number regex
     phone_match = re.findall(r'\d\d\d-\d\d\d-\d\d\d\d', r.text)
     if phone_match:
         for match in phone_match:
