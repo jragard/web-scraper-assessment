@@ -10,6 +10,20 @@ import argparse
 import requests
 import re
 import sys
+from HTMLParser import HTMLParser
+
+
+class MyHTMLParser(HTMLParser):
+    url_list = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            self.url_list.append(attrs[0][1])
+        elif tag == 'img':
+            self.url_list.append(attrs[0][1])
+
+    def handle_data(self, data):
+        print 'Encountered Data', data
 
 
 def scrape_url(url):
@@ -29,6 +43,12 @@ def scrape_url(url):
             if match not in url_list:
                 url_list.append(match)
 
+    # HTML Parser
+    parser = MyHTMLParser()
+    parser.feed(r.text)
+    merged_list = url_list + parser.url_list
+    output = set(merged_list)
+
     # Email regex
     email_match = re.findall(r'[\w.-]+@[\w.-]+.\w+', r.text)
     if email_match:
@@ -36,12 +56,16 @@ def scrape_url(url):
             if match not in email_list:
                 email_list.append(match)
 
+    email_list = set(email_list)
+
     # Phone number regex
     phone_match = re.findall(r'\d\d\d-\d\d\d-\d\d\d\d', r.text)
     if phone_match:
         for match in phone_match:
             if match not in phone_list:
                 phone_list.append(match)
+
+    phone_list = set(phone_list)
 
     print ''
     print ''
@@ -51,7 +75,7 @@ def scrape_url(url):
         print '**************************************************'
         print ''
         print ''
-        for url in url_list:
+        for url in output:
             print url
         print ''
         print ''
@@ -116,7 +140,10 @@ def main(args):
         parser.print_usage()
         sys.exit(1)
 
+    # parser.feed(args)
+
     parsed_args = parser.parse_args(args)
+    # parser.feed(par)
     scrape_url(parsed_args.url)
 
 
