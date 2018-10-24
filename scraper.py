@@ -18,9 +18,11 @@ class MyHTMLParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
-            self.url_list.append(attrs[0][1])
+            if attrs:
+                self.url_list.append(attrs[0][1])
         elif tag == 'img':
-            self.url_list.append(attrs[0][1])
+            if attrs:
+                self.url_list.append(attrs[0][1])
 
     def handle_data(self, data):
         print 'Encountered Data', data
